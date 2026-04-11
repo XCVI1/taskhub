@@ -1,0 +1,128 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.pyo
+*.pyd
+*.pdb
+*.egg
+*.egg-info/
+.eggs/
+dist/
+build/
+develop-eggs/
+.installed.cfg
+*.manifest
+*.spec
+
+# Virtual environments
+venv/
+env/
+.venv/
+.env/
+
+# Pip
+pip-log.txt
+pip-delete-this-directory.txt
+
+# Poetry
+.poetry/
+poetry.lock
+
+# PyInstaller
+*.manifest
+*.spec
+
+# Unit test / coverage reports
+htmlcov/
+.tox/
+.nox/
+.coverage
+.coverage.*
+.cache
+pytest_cache/
+nosetests.xml
+coverage.xml
+*.cover
+*.py,cover
+.hypothesis/
+
+# Mypy
+.mypy_cache/
+.dmypy.json
+dmypy.json
+
+# Pyre
+.pyre/
+
+# Pylint
+pylint.log
+
+# FastAPI / Uvicorn
+*.log
+logs/
+uvicorn.log
+
+# Docker
+docker-compose.override.yml
+docker-data/
+docker-volumes/
+*.tar
+*.img
+
+# Ignore Docker build artifacts
+**/__pycache__/
+**/*.pyc
+
+# Kubernetes / Helm
+*.yaml.tmp
+*.yml.tmp
+helm-release/
+charts/*/charts/
+charts/*/tmp/
+charts/*/values.schema.json
+.kube/
+kubeconfig
+secrets/*.yaml
+
+# VSCode
+.vscode/
+.history/
+*.code-workspace
+
+# PyCharm / JetBrains
+.idea/
+*.iml
+out/
+
+# OS files
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Node / Frontend (React)
+node_modules/
+npm-debug.log
+yarn-debug.log
+yarn-error.log
+.pnp/
+.pnp.js
+.next/
+out/
+build/
+.cache/
+.eslintcache
+
+# Environment files
+.env
+.env.*
+*.env
+*.env.*
+
+# Misc
+*.tmp
+*.bak
+*.swp
+*.swo
+*.orig
+*.rej
