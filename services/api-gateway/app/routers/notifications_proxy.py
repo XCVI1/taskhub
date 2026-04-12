@@ -1,11 +1,11 @@
-from fastapi import APIRouter
-import httpx
+from fastapi import APIRouter, Request
+from fastapi.responses import Response
+from app.core.proxy import proxy_request
+from app.core.config import settings
 
 router = APIRouter()
-NOTIF_URL = "http://notifications-service:8003/notifications"
 
-@router.get("/")
-async def get_notifications():
-    async with httpx.AsyncClient() as client:
-        r = await client.get(NOTIF_URL)
-        return r.json()
+@router.api_route("/{path:path}", methods=["GET", "POST", "PUT", "PATCH", "DELETE"])
+async def notifications_proxy(path: str, request: Request) -> Response:
+    url = f"{settings.NOTIFICATIONS_SERVICE_URL}/notifications/{path}"
+    return await proxy_request(request, url)

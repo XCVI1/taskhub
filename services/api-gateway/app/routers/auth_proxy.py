@@ -1,17 +1,11 @@
-from fastapi import APIRouter
-import httpx
+from fastapi import APIRouter, Request
+from fastapi.responses import Response
+from app.core.proxy import proxy_request
+from app.core.config import settings
 
 router = APIRouter()
-AUTH_URL = "http://auth-service:8001/auth"
 
-@router.post("/login")
-async def login(data: dict):
-    async with httpx.AsyncClient() as client:
-        r = await client.post(f"{AUTH_URL}/login", json=data)
-        return r.json()
-
-@router.post("/register")
-async def register(data: dict):
-    async with httpx.AsyncClient() as client:
-        r = await client.post(f"{AUTH_URL}/register", json=data)
-        return r.json()
+@router.api_route("/{path:path}", methods=["GET", "POST", "PUT", "PATCH", "DELETE"])
+async def auth_proxy(path: str, request: Request) -> Response:
+    url = f"{settings.AUTH_SERVICE_URL}/auth/{path}"
+    return await proxy_request(request, url)

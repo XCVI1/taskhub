@@ -1,17 +1,11 @@
-from fastapi import APIRouter
-import httpx
+from fastapi import APIRouter, Request
+from fastapi.responses import Response
+from app.core.proxy import proxy_request
+from app.core.config import settings
 
 router = APIRouter()
-TASKS_URL = "http://tasks-service:8002/tasks"
 
-@router.get("/")
-async def list_tasks():
-    async with httpx.AsyncClient() as client:
-        r = await client.get(TASKS_URL)
-        return r.json()
-
-@router.post("/")
-async def create_task(data: dict):
-    async with httpx.AsyncClient() as client:
-        r = await client.post(TASKS_URL, json=data)
-        return r.json()
+@router.api_route("/{path:path}", methods=["GET", "POST", "PUT", "PATCH", "DELETE"])
+async def tasks_proxy(path: str, request: Request) -> Response:
+    url = f"{settings.TASKS_SERVICE_URL}/tasks/{path}"
+    return await proxy_request(request, url)
