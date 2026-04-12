@@ -1,0 +1,67 @@
+replicaCount: 1
+
+image:
+  repository: danyafi/taskhub-auth-service
+  tag: "latest"
+  pullPolicy: IfNotPresent
+
+service:
+  type: ClusterIP
+  port: 8001
+
+deployment:
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxUnavailable: 0
+      maxSurge: 1
+
+ingress:
+  enabled: false
+
+postgresql:
+  auth:
+    username: user
+    password: password
+    database: auth_db
+
+autoscaling:
+  enabled: false
+
+pdb:
+  enabled: false
+  maxUnavailable: 1
+
+livenessProbe:
+  httpGet:
+    path: /health/live
+    port: 8001
+  initialDelaySeconds: 10
+  periodSeconds: 15
+  failureThreshold: 3
+
+readinessProbe:
+  httpGet:
+    path: /health/ready
+    port: 8001
+  initialDelaySeconds: 10
+  periodSeconds: 15
+  failureThreshold: 3
+
+startupProbe:
+  httpGet:
+    path: /health/live
+    port: 8001
+  failureThreshold: 12
+  periodSeconds: 5
+
+resources:
+  requests:
+    cpu: "50m"
+    memory: "128Mi"
+  limits:
+    cpu: "200m"
+    memory: "256Mi"
+
+httpRoute:
+  enabled: false
