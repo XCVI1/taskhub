@@ -1,0 +1,97 @@
+replicaCount: 1
+
+image:
+  repository: danyafi/taskhub-gateway
+  tag: "latest"
+  pullPolicy: IfNotPresent
+
+resources:
+  requests:
+    cpu: "25m"
+    memory: "64Mi"
+  limits:
+    cpu: "100m"
+    memory: "128Mi"
+
+service:
+  type: ClusterIP
+  port: 8000
+
+pdb:
+  enabled: false
+
+autoscaling:
+  enabled: false
+
+deployment:
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxUnavailable: 0
+      maxSurge: 1
+
+ingress:
+  enabled: true
+  className: traefik
+  tlsSecret: gateway-cert
+  host: gateway-micr.duckdns.org
+
+livenessProbe:
+  httpGet:
+    path: /
+    port: 8000
+  initialDelaySeconds: 5
+  periodSeconds: 15
+  failureThreshold: 3
+
+readinessProbe:
+  httpGet:
+    path: /
+    port: 8000
+  initialDelaySeconds: 3
+  periodSeconds: 10
+  failureThreshold: 3
+
+nginxConfig: |
+  events {}
+
+  http {
+    server {
+      listen 80;
+
+      # Healthcheck
+      location = / {
+        return 200 "API Gateway is running";
+      }
+
+      # AUTH SERVICE
+      location /auth/ {
+        proxy_pass http://auth-service:8001/;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header Authorization $http_authorization;
+      }
+
+      # TASKS SERVICE
+      location /tasks/ {
+        proxy_pass http://tasks-service:8002/;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header Authorization $http_authorization;
+      }
+
+      # NOTIFICATIONS SERVICE
+      location /notifications/ {
+        proxy_pass http://notifications-service:8003/;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header Authorization $http_authorization;
+      }
+    }
+  }
+
+httpRoute:
+  enabled: false
