@@ -1,0 +1,116 @@
+version: '3.8'
+
+services:
+  api-gateway:
+    build: ./services/api-gateway
+    container_name: api-gateway
+    ports:
+      - "8000:8000"
+    environment:
+      APP_PORT: 8000
+      AUTH_SERVICE_URL: http://auth-service:8001
+      TASKS_SERVICE_URL: http://tasks-service:8002
+      NOTIFICATIONS_SERVICE_URL: http://notifications-service:8003
+    depends_on:
+      - auth-service
+      - tasks-service
+      - notifications-service
+    networks:
+      - default
+
+  auth-service:
+    build: ./services/auth-service
+    container_name: auth-service
+    environment:
+      APP_PORT: 8001
+      DATABASE_URL: postgresql+asyncpg://user:password@postgres-auth:5432/auth_db
+    depends_on:
+      postgres-auth:
+        condition: service_healthy
+    networks:
+      - default
+
+  tasks-service:
+    build: ./services/tasks-service
+    container_name: tasks-service
+    environment:
+      APP_PORT: 8002
+      DATABASE_URL: postgresql+asyncpg://user:password@postgres-tasks:5432/tasks_db
+    depends_on:
+      postgres-tasks:
+        condition: service_healthy
+    networks:
+      - default
+
+  notifications-service:
+    build: ./services/notifications-service
+    container_name: notifications-service
+    environment:
+      APP_PORT: 8003
+      DATABASE_URL: postgresql+asyncpg://user:password@postgres-notifications:5432/notifications_db
+    depends_on:
+      postgres-notifications:
+        condition: service_healthy
+    networks:
+      - default
+
+  postgres-auth:
+    image: postgres:15
+    container_name: postgres-auth
+    environment:
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: auth_db
+    volumes:
+      - pgdata_auth:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U user -d auth_db"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    networks:
+      - default
+
+  postgres-tasks:
+    image: postgres:15
+    container_name: postgres-tasks
+    environment:
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: tasks_db
+    volumes:
+      - pgdata_tasks:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U user -d tasks_db"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    networks:
+      - default
+
+  postgres-notifications:
+    image: postgres:15
+    container_name: postgres-notifications
+    environment:
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: notifications_db
+    volumes:
+      - pgdata_notifications:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U user -d notifications_db"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    networks:
+      - default
+
+volumes:
+  pgdata_auth:
+  pgdata_tasks:
+  pgdata_notifications:
+
+networks:
+  default:
+    name: taskhub-net
+
