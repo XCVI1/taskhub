@@ -1,0 +1,20 @@
+name: Auth service pipeline
+
+on:
+  push:
+    paths:
+      - "services/auth-service/**"
+      - ".github/workflows/auth-service.yml"
+
+jobs:
+  ci:
+    uses: ./.github/workflows/_reusable-ci.yml
+    with:
+      service_name: "auth-service"
+      context: "services/auth-service"
+      dockerfile: "services/auth-service/Dockerfile"
+      image_name: "danyafi/taskhub-auth-service"
+    secrets:
+      REGISTRY_USER: ${{ secrets.REGISTRY_USER }}
+      REGISTRY_PASSWORD: ${{ secrets.REGISTRY_PASSWORD }}
+
