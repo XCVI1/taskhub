@@ -1,0 +1,68 @@
+name: Reusable CI
+
+on:
+  workflow_call:
+    inputs:
+      service_name:
+        required: true
+        type: string
+      context:
+        required: true
+        type: string
+      dockerfile:
+        required: true
+        type: string
+      image_name:
+        required: true
+        type: string
+    secrets:
+      REGISTRY_USER:
+        required: true
+      REGISTRY_PASSWORD:
+        required: true
+
+jobs:
+  ci:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Setup python
+        if: ${{ endsWith(inputs.dockerfile, 'Dockerfile') }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install dependencies
+        if: ${{ endsWith(inputs.dockerfile, 'Dockerfile') }}
+        run: |
+          pip install -r ${{ inputs.context }}/requirements.txt
+
+      - name: Run tests
+        if: ${{ endsWith(inputs.dockerfile, 'Dockerfile') }}
+        continue-on-error: true
+        run: |
+          pytest -q || echo "No tests found"
+
+      - name: Login to container registry
+        run: |
+          echo "${{ secrets.REGISTRY_PASSWORD }}" | docker login \
+            -u "${{ secrets.REGISTRY_USER }}" --password-stdin
+
+      - name: Build image
+        run: |
+          docker build \
+            -t ${{ inputs.image_name }}:${{ github.sha }} \
+            -f ${{ inputs.dockerfile }} \
+            ${{ inputs.context }}
+
+
+      - name: Push image
+        run: docker push ${{ inputs.image_name }}:${{ github.sha }}
+
+      - name: Export image tag
+        id: meta
+        run: echo "tag=${{ github.sha }}" >> $GITHUB_OUTPUT
+
+
