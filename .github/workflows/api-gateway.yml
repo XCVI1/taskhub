@@ -1,0 +1,20 @@
+name: Pipeline for api gateway
+
+on:
+  push:
+    paths:
+      - "services/api-gateway/**"
+      - ".github/workflows/api-gateway.yml"
+
+jobs:
+  ci:
+    uses: ./.github/workflows/_reusable-ci.yml
+    with:
+      service_name: "api-gateway"
+      context: "services/api-gateway"
+      dockerfile: "services/api-gateway/Dockerfile"
+      image_name: "danyafi/taskhub-gateway"
+    secrets:
+      REGISTRY_USER: ${{ secrets.REGISTRY_USER }}
+      REGISTRY_PASSWORD: ${{ secrets.REGISTRY_PASSWORD }}
+
