@@ -10,7 +10,7 @@ jobs:
   ci:
     uses: ./.github/workflows/_reusable-ci.yml
     with:
-      ervice_name: "notifications-service"
+      service_name: "notifications-service"
       context: "services/notifications-service"
       dockerfile: "services/notifications-service/Dockerfile"
       image_name: "danyafi/notifications-service"
