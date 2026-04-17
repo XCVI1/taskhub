@@ -1,0 +1,20 @@
+name: Pipeline for notifications services
+
+on:
+  push:
+    paths:
+      - "services/notifications-service/**"
+      - ".github/workflows/notifications-service.yml"
+
+jobs:
+  ci:
+    uses: ./.github/workflows/_reusable-ci.yml
+    with:
+      ervice_name: "notifications-service"
+      context: "services/notifications-service"
+      dockerfile: "services/notifications-service/Dockerfile"
+      image_name: "danyafi/notifications-service"
+    secrets:
+      REGISTRY_USER: ${{ secrets.REGISTRY_USER }}
+      REGISTRY_PASSWORD: ${{ secrets.REGISTRY_PASSWORD }}
+
