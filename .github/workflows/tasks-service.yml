@@ -1,0 +1,19 @@
+name: Tasks service pipeline
+
+on:
+  push:
+    paths:
+      - "services/tasks-service/**"
+      - ".github/workflows/tasks-service.yml"
+
+jobs:
+  ci:
+    uses: "./.github/workflows/_reusable-ci.yml"
+    with:
+      service_name: tasks-service
+      context: "services/tasks-service"
+      dockerfile: "services/tasks-service/Dockerfile"
+      image_name: "danyafi/tasks-service"
+    secrets:
+      REGISTRY_USER: ${{ secrets.REGISTRY_USER }}
+      REGISTRY_PASSWORD: ${{ secrets.REGISTRY_PASSWORD }}
